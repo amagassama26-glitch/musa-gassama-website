@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Interactive career journey map of Dr. Musa Yerro Gassama - 31+ years across 9 countries">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://yourusername.github.io/career-map.html">
+    
+    <meta property="og:title" content="Career Journey Map - Dr. Musa Yerro Gassama">
+    <meta property="og:description" content="Explore Dr. Gassama's professional journey across 9 countries over 31+ years">
+    <meta property="og:type" content="website">
+    
+    <title>Career Journey Map | Dr. Musa Yerro Gassama</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        .map-page-hero {
+            background: linear-gradient(135deg, #0b1929 0%, var(--color-accent) 40%, var(--color-accent-light) 100%);
+            color: white;
+            padding: var(--space-2xl) 0;
+            text-align: center;
+        }
+        
+        .map-page-hero h1 {
+            color: white;
+            margin-bottom: var(--space-md);
+        }
+        
+        .map-page-hero p {
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 1.1rem;
+        }
+        
+        .map-section {
+            padding: var(--space-xl) 0;
+            background: var(--color-bg-light);
+        }
+        
+        .map-container-wrapper {
+            height: 700px;
+            width: 100%;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            margin-top: var(--space-lg);
+            position: relative;
+        }
+        
+        #career-map {
+            height: 100%;
+            width: 100%;
+        }
+        
+        .map-legend {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: var(--space-md);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            z-index: 1000;
+            max-width: 280px;
+        }
+        
+        .map-legend h3 {
+            margin-bottom: var(--space-sm);
+            color: var(--color-accent);
+            font-size: 1rem;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: var(--space-xs);
+            font-size: 0.9rem;
+        }
+        
+        .legend-color {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            margin-right: var(--space-sm);
+            border: 2px solid white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .map-stats {
+            padding: var(--space-xl) 0;
+            background: var(--color-bg);
+        }
+        
+        .map-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-lg);
+            margin-top: var(--space-lg);
+        }
+        
+        .map-stat-card {
+            background: var(--color-bg-light);
+            padding: var(--space-lg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            text-align: center;
+            border-left: 4px solid var(--color-accent);
+        }
+        
+        .map-stat-card h3 {
+            font-size: 2.5rem;
+            color: var(--color-accent);
+            margin-bottom: var(--space-xs);
+            font-family: var(--font-display);
+        }
+        
+        .map-stat-card p {
+            color: var(--color-text-light);
+            font-size: 0.95rem;
+            margin: 0;
+        }
+        
+        /* Custom popup styling */
+        .leaflet-popup-content-wrapper {
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        
+        .custom-popup {
+            min-width: 300px;
+            padding: 5px;
+        }
+        
+        .popup-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--color-accent);
+            margin-bottom: 10px;
+            border-bottom: 2px solid var(--color-accent-light);
+            padding-bottom: 8px;
+        }
+        
+        .popup-role {
+            font-size: 1em;
+            color: var(--color-text);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .popup-org {
+            font-size: 0.95em;
+            color: var(--color-text-light);
+            margin-bottom: 8px;
+            font-style: italic;
+        }
+        
+        .popup-dates {
+            font-size: 0.9em;
+            color: var(--color-text-muted);
+            margin-bottom: 5px;
+        }
+        
+        .popup-duration {
+            font-size: 0.85em;
+            color: var(--color-text-muted);
+            font-style: italic;
+        }
+        
+        .popup-location {
+            font-size: 0.9em;
+            color: var(--color-accent);
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid var(--color-border);
+        }
+        
+        @media (max-width: 768px) {
+            .map-legend {
+                position: relative;
+                bottom: auto;
+                right: auto;
+                margin-top: var(--space-md);
+                max-width: 100%;
+            }
+            
+            .map-container-wrapper {
+                height: 500px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <header class="site-header">
+        <div class="container">
+            <div class="header-content">
+                <h1 class="site-title"><a href="index.html">Dr. Musa Yerro Gassama</a></h1>
+                <nav class="main-nav" aria-label="Main navigation">
+                    <button class="menu-toggle" aria-label="Toggle menu" aria-expanded="false">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                    <ul class="nav-list">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="profile.html">Profile</a></li>
+                        <li><a href="portfolio.html">Portfolio</a></li>
+                        <li><a href="career-map.html" class="active">Career Map</a></li>
+                        <li><a href="module.html">Course Module</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main id="main-content">
+        <section class="map-page-hero">
+            <div class="container-narrow">
+                <h1>Career Journey Map</h1>
+                <p>Explore Dr. Gassama's professional journey across 9 countries over 31+ years of international human rights leadership. Hover over markers to see role details, dates, and organizations.</p>
+            </div>
+        </section>
+
+        <section class="map-section">
+            <div class="container">
+                <div class="map-container-wrapper">
+                    <div id="career-map"></div>
+                    
+                    <div class="map-legend">
+                        <h3>Career Timeline</h3>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #e74c3c;"></div>
+                            <span>Current Position</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #3498db;"></div>
+                            <span>UN Peacekeeping</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #9b59b6;"></div>
+                            <span>OHCHR Regional</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #f39c12;"></div>
+                            <span>International NGO</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #27ae60;"></div>
+                            <span>Early Career</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="map-stats">
+            <div class="container">
+                <h2 class="section-title">Career Highlights</h2>
+                <div class="map-stats-grid">
+                    <div class="map-stat-card">
+                        <h3>31+</h3>
+                        <p>Years of Experience</p>
+                    </div>
+                    <div class="map-stat-card">
+                        <h3>9</h3>
+                        <p>Countries Worked In</p>
+                    </div>
+                    <div class="map-stat-card">
+                        <h3>100+</h3>
+                        <p>Team Members Led</p>
+                    </div>
+                    <div class="map-stat-card">
+                        <h3>5</h3>
+                        <p>UN Missions</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p class="disclaimer">This is a personal professional website. It does not represent the United Nations or any UN entity.</p>
+            <p class="copyright">&copy; <span id="year"></span> Dr. Musa Yerro Gassama. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="assets/js/script.js"></script>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Initialize career map
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize map centered on Africa
+            const map = L.map('career-map').setView([8.0, 20.0], 3);
+            
+            // Add OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 18
+            }).addTo(map);
+            
+            // Career positions data
+            const positions = [
+                {
+                    location: "Juba, South Sudan",
+                    coordinates: [4.8594, 31.5712],
+                    role: "Representative of High Commissioner for Human Rights and Director (D2)",
+                    organization: "United Nations Mission in South Sudan (UNMISS)",
+                    startDate: "December 2020",
+                    endDate: "Present",
+                    duration: "5 yrs 3 mos",
+                    category: "current",
+                    description: "Director of a team of more than 100 experts, providing relevant data for early warning on emerging conditions and strategic guidance, advisory, and technical services to national and international stakeholders."
+                },
+                {
+                    location: "Bangui, Central African Republic",
+                    coordinates: [4.3947, 18.5582],
+                    role: "Representative of OHCHR and Chief of Human Rights (D1) Section",
+                    organization: "United Nations Integrated Mission in Central African Republic (MINUSCA)",
+                    startDate: "September 2014",
+                    endDate: "November 2020",
+                    duration: "6 yrs 3 mos",
+                    category: "peacekeeping",
+                    description: "Director of a team of more than 100 experts, providing strategic guidance and early warning data for prevention and protection of civilians at risk."
+                },
+                {
+                    location: "Mogadishu, Somalia",
+                    coordinates: [2.0469, 45.3182],
+                    role: "Representative of OHCHR & Chief of Human Rights (D1) Section",
+                    organization: "United Nations Assistance Mission in Somalia (UNSOM)",
+                    startDate: "July 2013",
+                    endDate: "September 2014",
+                    duration: "1 yr 3 mos",
+                    category: "peacekeeping",
+                    description: "Director of a team of more than 35 experts in a UN political field mission, providing strategic guidance and early warning data."
+                },
+                {
+                    location: "Addis Ababa, Ethiopia",
+                    coordinates: [9.1450, 38.7667],
+                    role: "OHCHR Regional Representative for East Africa and to the African Union Commission",
+                    organization: "Office of the High Commissioner for Human Rights (OHCHR)",
+                    startDate: "July 2010",
+                    endDate: "July 2013",
+                    duration: "3 yrs 1 mo",
+                    category: "regional",
+                    description: "Advancing strategic AU-UN cooperation on development, humanitarian, governance, and peace and security issues."
+                },
+                {
+                    location: "Lomé, Togo",
+                    coordinates: [6.1725, 1.2314],
+                    role: "Representative of OHCHR (P5)",
+                    organization: "Office of the High Commissioner for Human Rights (OHCHR)",
+                    startDate: "May 2008",
+                    endDate: "July 2010",
+                    duration: "2 yrs 3 mos",
+                    category: "regional",
+                    description: "Maintained contact with government and wide range of actors, providing strategic guidance and early warning data."
+                },
+                {
+                    location: "Geneva, Switzerland",
+                    coordinates: [46.2044, 6.1432],
+                    role: "Deputy Director",
+                    organization: "International Service for Human Rights",
+                    startDate: "July 2004",
+                    endDate: "May 2008",
+                    duration: "3 yrs 11 mos",
+                    category: "ngo",
+                    description: "Organisational management; Promotion and protection of rights of human rights defenders through advocacy, technical assistance and capacity development."
+                },
+                {
+                    location: "Kampala, Uganda",
+                    coordinates: [0.3476, 32.5825],
+                    role: "Regional Project Coordinator",
+                    organization: "Amnesty International",
+                    startDate: "July 2002",
+                    endDate: "July 2004",
+                    duration: "2 yrs 1 mo",
+                    category: "ngo",
+                    description: "Promotion and protection of rights of human rights defenders through engagement with national and international stakeholders."
+                },
+                {
+                    location: "Dakar, Senegal",
+                    coordinates: [14.7167, -17.4677],
+                    role: "Regional Project Coordinator",
+                    organization: "Amnesty International",
+                    startDate: "May 2000",
+                    endDate: "July 2002",
+                    duration: "2 yrs 3 mos",
+                    category: "ngo",
+                    description: "Promotion and protection of rights of human rights defenders through engagement with national and international stakeholders."
+                },
+                {
+                    location: "Banjul, The Gambia",
+                    coordinates: [13.4549, -16.5790],
+                    role: "Editor and Head of National Council for Law Reporting Offices",
+                    organization: "National Council for Law Reporting Offices",
+                    startDate: "January 1999",
+                    endDate: "May 2000",
+                    duration: "1 yr 5 mos",
+                    category: "early",
+                    description: "Reviewed judgments, selected relevant decisions as judicial precedents and compiled law reports for legal practitioners."
+                },
+                {
+                    location: "Banjul, The Gambia",
+                    coordinates: [13.4549, -16.5790],
+                    role: "Law Lecturer (Part-time)",
+                    organization: "GTTI Gambia",
+                    startDate: "October 1996",
+                    endDate: "May 2000",
+                    duration: "3 yrs 8 mos",
+                    category: "early",
+                    description: "Teaching criminal law and procedure at diploma level."
+                },
+                {
+                    location: "Banjul, The Gambia",
+                    coordinates: [13.4549, -16.5790],
+                    role: "Magistrate",
+                    organization: "Judiciary The Gambia",
+                    startDate: "July 1994",
+                    endDate: "January 1999",
+                    duration: "4 yrs 7 mos",
+                    category: "early",
+                    description: "Administration of justice, justice delivery, hearing and determination of cases in court/adjudication."
+                }
+            ];
+            
+            // Color scheme based on category
+            const categoryColors = {
+                current: '#e74c3c',
+                peacekeeping: '#3498db',
+                regional: '#9b59b6',
+                ngo: '#f39c12',
+                early: '#27ae60'
+            };
+            
+            // Add markers for each position
+            positions.forEach((pos, index) => {
+                const color = categoryColors[pos.category];
+                
+                // Create custom icon
+                const icon = L.divIcon({
+                    className: 'custom-marker',
+                    html: `<div style="
+                        width: 25px;
+                        height: 25px;
+                        background-color: ${color};
+                        border: 3px solid white;
+                        border-radius: 50%;
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+                        cursor: pointer;
+                    "></div>`,
+                    iconSize: [25, 25],
+                    iconAnchor: [12.5, 12.5]
+                });
+                
+                // Create popup content
+                const popupContent = `
+                    <div class="custom-popup">
+                        <div class="popup-title">${pos.location}</div>
+                        <div class="popup-role">${pos.role}</div>
+                        <div class="popup-org">${pos.organization}</div>
+                        <div class="popup-dates"><strong>Period:</strong> ${pos.startDate} - ${pos.endDate}</div>
+                        <div class="popup-duration">Duration: ${pos.duration}</div>
+                        <div class="popup-location">${pos.description}</div>
+                    </div>
+                `;
+                
+                // Add marker to map
+                const marker = L.marker(pos.coordinates, { icon: icon })
+                    .addTo(map)
+                    .bindPopup(popupContent);
+                
+                // Add hover effect
+                marker.on('mouseover', function() {
+                    this.openPopup();
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
